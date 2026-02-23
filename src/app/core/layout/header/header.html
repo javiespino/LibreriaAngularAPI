@@ -1,0 +1,38 @@
+<header class="header">
+  <h1>Librería de Javier</h1>
+
+  @if (!isLoginPage()) {
+    <div class="header-buttons">
+
+      @if (auth.isLoggedIn()) {
+        <span class="welcome">Hola, {{ auth.currentUser()?.username }}</span>
+      }
+
+      @if (auth.isAdmin()) {
+        <span class="role-badge admin">Admin</span>
+      } @else if (auth.isUser()) {
+        <span class="role-badge user">Usuario</span>
+      }
+
+      @if (auth.isAdmin()) {
+        <button class="new-book-btn" (click)="goToNewBook()">
+          Dar de alta
+        </button>
+      }
+
+      @if (auth.isLoggedIn()) {
+        <button class="cart-btn" (click)="toggleCart()">
+          🛒 Carrito ({{ totalItems() }})
+        </button>
+        <button class="logout-btn" (click)="logout()">
+          Cerrar sesión
+        </button>
+      } @else {
+        <button class="login-btn" (click)="goToLogin()">
+          Iniciar sesión
+        </button>
+      }
+
+    </div>
+  }
+</header>

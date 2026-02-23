@@ -1,0 +1,38 @@
+<div class="login-container">
+  <div>
+    <h2>Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <input placeholder="Usuario" formControlName="username">
+      <div class="password-wrapper">
+        <input [type]="showPassword ? 'text' : 'password'" placeholder="Password" formControlName="password">
+        <span class="toggle-eye" (click)="showPassword = !showPassword">
+          {{ showPassword ? '🙈' : '👁️' }}
+        </span>
+      </div>
+
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+      @if (error()) {
+        <p style="color:red">Credenciales incorrectas</p>
+      }
+    </form>
+
+    <div class="guest-divider">
+      <span>o</span>
+    </div>
+
+    <button class="guest-btn" (click)="enterAsGuest()">
+      Entrar como invitado
+    </button>
+
+    <div class="guest-divider">
+      <span>o</span>
+    </div>
+
+    <a routerLink="/register">
+      <button class="guest-btn">¿No tienes cuenta? Regístrate</button>
+    </a>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+@if (showCart()) {
+  <div class="cart-overlay" (click)="closeCart()"></div>
+
+  <aside class="cart">
+
+    <h2>Carrito</h2>
+
+    @if (items().length === 0) {
+      <p style="text-align:center; color:#666;">
+        El carrito está vacío
+      </p>
+    } @else {
+      <button class="btn-clear-cart" (click)="clearCart()">
+        🗑️ Vaciar carrito
+      </button>
+    }
+
+    <ul class="cart-list">
+      @for (item of items(); track item.libro.id) {
+        <li class="cart-item">
+          <img
+            [src]="item.libro.imagenUrl"
+            [alt]="item.libro.titulo"
+            class="cart-image"
+          >
+
+          <div class="cart-item-info">
+            <span class="cart-title">{{ item.libro.titulo }}</span>
+
+            <div class="cart-controls">
+              <button (click)="decrease(item.libro.id)">−</button>
+              <span class="cart-quantity">{{ item.quantity }}</span>
+              <button (click)="add(item.libro)"
+                      [disabled]="cantidadEnCarrito(item.libro.id) >= item.libro.stock">
+                +
+              </button>
+            </div>
+          </div>
+
+          <div style="text-align: right;">
+            <div class="cart-price">
+              {{ item.libro.precio * item.quantity | currency:'EUR' }}
+            </div>
+            <button class="cart-remove" (click)="remove(item.libro.id)">
+              🗑️
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        <strong>Total:</strong> {{ totalPrice() | currency:'EUR' }}
+      </div>
+      <button class="btn-checkout" (click)="checkout()">
+        Finalizar pedido
+      </button>
+    </div>
+
+  </aside>
+}

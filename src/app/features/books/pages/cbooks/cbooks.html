@@ -1,0 +1,95 @@
+<div class="page-header">
+  <h1>Estantería de Javier</h1>
+  <p class="page-subtitle">Encuentra tu próxima lectura</p>
+</div>
+
+<div class="search-bar">
+  <div class="search-input-wrapper">
+    <span class="search-icon">🔍</span>
+    <input
+      type="text"
+      [placeholder]="'Buscar por ' + searchField()"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+    />
+  </div>
+
+  <div class="search-filters">
+    <div class="filter-group">
+      <label>Buscar por</label>
+      <select [ngModel]="searchField()" (ngModelChange)="searchField.set($event)">
+        <option value="titulo">Título</option>
+        <option value="autor">Autor</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Ordenar por</label>
+      <select [ngModel]="sortOption()" (ngModelChange)="sortOption.set($event)">
+        <option value="none">Sin orden</option>
+        <option value="precio-asc">Precio: menor a mayor</option>
+        <option value="precio-desc">Precio: mayor a menor</option>
+        <option value="stock-asc">Stock: menor a mayor</option>
+        <option value="stock-desc">Stock: mayor a menor</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+  <p>Cargando libros...</p>
+}
+
+@if (filteredLibros().length === 0 && !loading()) {
+  <p class="no-results">No se encontraron libros.</p>
+}
+
+<section class="products">
+  @for (libro of filteredLibros(); track libro.id) {
+    <article class="product-card">
+      <img
+        [src]="'https://covers.openlibrary.org/b/isbn/' + libro?.isbn + '-L.jpg'"
+        [alt]="libro?.titulo || 'Libro'"
+        (error)="onImageError($event)"
+        (load)="onImageLoad($event)"
+      />
+      <div class="product-info">
+        <h3>{{ libro.titulo }}</h3>
+        <small class="autor">{{ libro.autor }}</small>
+        <p class="sinopsis">{{ libro.sinopsis }}</p>
+        <p class="price">{{ libro.precio | currency:'EUR':'symbol':'1.2-2' }}</p>
+        <p class="stock">Disponibles: {{ libro.stock }}</p>
+
+        @if (auth.isLoggedIn()) {
+          <button (click)="addToCart(libro)"
+                  [disabled]="libro.stock <= 0 || cantidadEnCarrito(libro.id) >= libro.stock">
+            {{ libro.stock <= 0 ? 'Sin stock' : cantidadEnCarrito(libro.id) >= libro.stock ? 'Máximo alcanzado' : 'Añadir al carrito' }}
+          </button>
+        }
+
+        @if (auth.isAdmin()) {
+          <button class="btn-edit" (click)="editLibro(libro)">Editar</button>
+          <button class="btn-delete" (click)="pedirConfirmacionBorrar(libro)">Eliminar</button>
+        }
+      </div>
+    </article>
+  }
+</section>
+
+@if (auth.isLoggedIn()) {
+  <app-cart></app-cart>
+}
+
+<!-- Modal de confirmación -->
+@if (libroAEliminar()) {
+  <div class="modal-overlay" (click)="cancelarBorrar()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>¿Eliminar libro?</h3>
+      <p>Vas a eliminar <strong>{{ libroAEliminar()?.titulo }}</strong>. Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelarBorrar()">Cancelar</button>
+        <button class="btn-confirm-delete" (click)="confirmarBorrar()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}

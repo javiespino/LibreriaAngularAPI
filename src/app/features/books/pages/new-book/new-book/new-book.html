@@ -1,0 +1,81 @@
+<div class="new-book-page">
+  <div class="new-book-card">
+    <h2>Dar de alta libro</h2>
+
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+
+    <div class="form-group">
+      <label>Título *</label>
+      <input type="text" [(ngModel)]="form.titulo" placeholder="Título del libro"
+             [class.input-error]="errors['titulo']" />
+      @if (errors['titulo']) { <span class="field-error">{{ errors['titulo'] }}</span> }
+    </div>
+
+    <div class="form-group">
+      <label>Autor *</label>
+      <input type="text" [(ngModel)]="form.autor" placeholder="Nombre del autor"
+             [class.input-error]="errors['autor']" />
+      @if (errors['autor']) { <span class="field-error">{{ errors['autor'] }}</span> }
+    </div>
+
+    <div class="form-group">
+      <label>ISBN *</label>
+      <input type="text" [(ngModel)]="form.isbn" placeholder="978-..."
+             [class.input-error]="errors['isbn']" />
+      @if (errors['isbn']) {
+        <span class="field-error">{{ errors['isbn'] }}</span>
+      } @else {
+        <small class="field-hint">La imagen se generará automáticamente a partir del ISBN</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Sinopsis *</label>
+      <textarea [(ngModel)]="form.sinopsis" placeholder="Descripción del libro" rows="4"
+                [class.input-error]="errors['sinopsis']"></textarea>
+      @if (errors['sinopsis']) { <span class="field-error">{{ errors['sinopsis'] }}</span> }
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Precio (€) *</label>
+        <input type="number" [(ngModel)]="form.precio" placeholder="0.00" min="0" step="0.01"
+               [class.input-error]="errors['precio']" />
+        @if (errors['precio']) { <span class="field-error">{{ errors['precio'] }}</span> }
+      </div>
+      <div class="form-group">
+        <label>Stock *</label>
+        <input type="number" [(ngModel)]="form.stock" placeholder="0" min="0" step="1"
+               [class.input-error]="errors['stock']" />
+        @if (errors['stock']) { <span class="field-error">{{ errors['stock'] }}</span> }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Editorial</label>
+        <input type="text" [(ngModel)]="form.editorial" placeholder="Opcional" />
+      </div>
+      <div class="form-group">
+        <label>Formato</label>
+        <input type="text" [(ngModel)]="form.formato" placeholder="Tapa dura, bolsillo..." />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Edición</label>
+      <input type="text" [(ngModel)]="form.edicion" placeholder="1ª edición, 2023..." />
+    </div>
+
+    <p class="form-hint">* Campos obligatorios</p>
+
+    <div class="form-actions">
+      <button class="btn-cancel" (click)="cancel()">Cancelar</button>
+      <button class="btn-submit" (click)="submit()" [disabled]="loading()">
+        {{ loading() ? 'Guardando...' : 'Dar de alta' }}
+      </button>
+    </div>
+  </div>
+</div>
