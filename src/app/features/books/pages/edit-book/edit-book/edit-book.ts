@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FLibros } from '../../../facade/fbooks';
 import { ILibro } from '../../../models/ibooks';
+import { Title } from '@angular/platform-browser';
 
 
 @Component({
@@ -17,6 +18,7 @@ export class EditBookComponent implements OnInit {
   private librosFacade = inject(FLibros);
   private router       = inject(Router);
   private route        = inject(ActivatedRoute);
+  private title        = inject(Title);
 
   loading      = signal(false);
   loadingPage  = signal(true);
@@ -40,6 +42,7 @@ export class EditBookComponent implements OnInit {
 
   ngOnInit() {
     this.libroId = Number(this.route.snapshot.paramMap.get('id'));
+    this.title.setTitle('Librería de Javier - Editar');
     this.librosFacade.getLibroById(this.libroId).subscribe({
       next: (libro) => {
         this.form = {

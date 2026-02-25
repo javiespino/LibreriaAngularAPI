@@ -10,14 +10,14 @@
       type="text"
       [placeholder]="'Buscar por ' + searchField()"
       [ngModel]="searchQuery()"
-      (ngModelChange)="searchQuery.set($event)"
+      (ngModelChange)="searchQuery.set($event); onSearchChange()"
     />
   </div>
 
   <div class="search-filters">
     <div class="filter-group">
       <label>Buscar por</label>
-      <select [ngModel]="searchField()" (ngModelChange)="searchField.set($event)">
+      <select [ngModel]="searchField()" (ngModelChange)="searchField.set($event); onSearchChange()">
         <option value="titulo">Título</option>
         <option value="autor">Autor</option>
       </select>
@@ -25,12 +25,21 @@
 
     <div class="filter-group">
       <label>Ordenar por</label>
-      <select [ngModel]="sortOption()" (ngModelChange)="sortOption.set($event)">
+      <select [ngModel]="sortOption()" (ngModelChange)="sortOption.set($event); onSearchChange()">
         <option value="none">Sin orden</option>
         <option value="precio-asc">Precio: menor a mayor</option>
         <option value="precio-desc">Precio: mayor a menor</option>
         <option value="stock-asc">Stock: menor a mayor</option>
         <option value="stock-desc">Stock: mayor a menor</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Por página</label>
+      <select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+        @for (size of pageSizes; track size) {
+          <option [value]="size">{{ size }}</option>
+        }
       </select>
     </div>
   </div>
@@ -44,14 +53,35 @@
   <p class="no-results">No se encontraron libros.</p>
 }
 
+<p class="results-count" *ngIf="!loading() && filteredLibros().length > 0">
+  Mostrando {{ paginatedLibros().length }} de {{ filteredLibros().length }} libros
+</p>
+
+<!-- PAGINACIÓN ARRIBA -->
+@if (totalPages() > 1) {
+  <div class="pagination-top">
+    <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">‹</button>
+
+    @for (page of pages(); track page) {
+      <button class="page-btn" [class.active]="page === currentPage()" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    }
+
+    <button class="page-btn" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">›</button>
+  </div>
+}
+
 <section class="products">
-  @for (libro of filteredLibros(); track libro.id) {
+  @for (libro of paginatedLibros(); track libro.id) {
     <article class="product-card">
       <img
         [src]="'https://covers.openlibrary.org/b/isbn/' + libro?.isbn + '-L.jpg'"
         [alt]="libro?.titulo || 'Libro'"
         (error)="onImageError($event)"
         (load)="onImageLoad($event)"
+        (click)="verDetalle(libro)"
+        style="cursor: pointer;"
       />
       <div class="product-info">
         <h3>{{ libro.titulo }}</h3>
@@ -76,11 +106,25 @@
   }
 </section>
 
+<!-- PAGINACIÓN ABAJO -->
+@if (totalPages() > 1) {
+  <div class="pagination-bottom">
+    <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">‹</button>
+
+    @for (page of pages(); track page) {
+      <button class="page-btn" [class.active]="page === currentPage()" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    }
+
+    <button class="page-btn" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">›</button>
+  </div>
+}
+
 @if (auth.isLoggedIn()) {
   <app-cart></app-cart>
 }
 
-<!-- Modal de confirmación -->
 @if (libroAEliminar()) {
   <div class="modal-overlay" (click)="cancelarBorrar()">
     <div class="modal" (click)="$event.stopPropagation()">
@@ -89,6 +133,34 @@
       <div class="modal-actions">
         <button class="btn-cancel" (click)="cancelarBorrar()">Cancelar</button>
         <button class="btn-confirm-delete" (click)="confirmarBorrar()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (libroSeleccionado()) {
+  <div class="modal-overlay" (click)="cerrarDetalle()">
+    <div class="modal modal-detalle" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="cerrarDetalle()">✕</button>
+      <div class="modal-detalle-content">
+        <img
+          [src]="'https://covers.openlibrary.org/b/isbn/' + libroSeleccionado()?.isbn + '-L.jpg'"
+          [alt]="libroSeleccionado()?.titulo"
+          (error)="onImageError($event)"
+          (load)="onImageLoad($event)"
+          class="modal-imagen"
+        />
+        <div class="modal-detalle-info">
+          <h2>{{ libroSeleccionado()?.titulo }}</h2>
+          <p><strong>Autor:</strong> {{ libroSeleccionado()?.autor }}</p>
+          <p><strong>Editorial:</strong> {{ libroSeleccionado()?.editorial }}</p>
+          <p><strong>Edición:</strong> {{ libroSeleccionado()?.edicion }}</p>
+          <p><strong>Formato:</strong> {{ libroSeleccionado()?.formato }}</p>
+          <p><strong>ISBN:</strong> {{ libroSeleccionado()?.isbn }}</p>
+          <p><strong>Sinopsis:</strong> {{ libroSeleccionado()?.sinopsis }}</p>
+          <p class="price">{{ libroSeleccionado()?.precio | currency:'EUR':'symbol':'1.2-2' }}</p>
+          <p class="stock">Disponibles: {{ libroSeleccionado()?.stock }}</p>
+        </div>
       </div>
     </div>
   </div>

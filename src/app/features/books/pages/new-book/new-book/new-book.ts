@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { FLibros } from '../../../facade/fbooks';
 import { ILibro } from '../../../models/ibooks';
 
@@ -16,6 +17,7 @@ import { ILibro } from '../../../models/ibooks';
 export class NewBookComponent {
   private librosFacade = inject(FLibros);
   private router       = inject(Router);
+  private title        = inject(Title);
 
   loading = signal(false);
   error   = signal<string | null>(null);
@@ -32,12 +34,19 @@ export class NewBookComponent {
     edicion:   '',
   };
 
-  // Errores individuales por campo
   errors: Record<string, string> = {};
+
+  ngOnInit() {
+    this.title.setTitle('Librería de Javier - Nuevo libro');
+  }
 
   private validarISBN(isbn: string): boolean {
     const clean = isbn.replace(/[-\s]/g, '');
     return /^\d{13}$/.test(clean) || /^\d{10}$/.test(clean);
+  }
+
+  private isbnDuplicado(isbn: string): boolean {
+    return this.librosFacade.libros().some(l => l.isbn === isbn);
   }
 
   private validarPrecio(precio: number | null): boolean {
@@ -66,6 +75,8 @@ export class NewBookComponent {
       this.errors['isbn'] = 'El ISBN es obligatorio.';
     else if (!this.validarISBN(this.form.isbn))
       this.errors['isbn'] = 'El ISBN debe tener 10 o 13 dígitos.';
+    else if (this.isbnDuplicado(this.form.isbn.replace(/[-\s]/g, '')))
+      this.errors['isbn'] = 'Este ISBN ya existe en la librería.';
 
     if (this.form.precio === null)
       this.errors['precio'] = 'El precio es obligatorio.';

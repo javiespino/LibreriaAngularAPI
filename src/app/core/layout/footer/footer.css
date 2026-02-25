@@ -1,37 +1,11 @@
 .footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 2rem;
     height: 64px;
     background-color: #1e293b;
-    color: white;
-    box-sizing: border-box;
     width: 100%;
-    margin-top: auto;  /* ← esto es todo lo que necesitas */
-}
-
-.footer-brand {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: bold;
-}
-
-.footer-links {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.footer-links a {
-    color: #cbd5e1;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.2s ease;
-}
-
-.footer-links a:hover {
-    color: #f59e0b;
+    margin-top: auto;
 }
 
 .footer-copy {

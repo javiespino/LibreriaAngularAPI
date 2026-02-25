@@ -115,3 +115,34 @@
 .new-book-btn:hover {
   background-color: #16a34a;
 }
+
+/* Botón Mis Pedidos */
+.orders-btn {
+    background-color: #3b82f6; /* azul principal */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.orders-btn:hover {
+    background-color: #2563eb;
+    transform: scale(1.05);
+}
+
+.brand-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.brand-link:hover {
+  opacity: 0.8;
+}

@@ -27,7 +27,7 @@
       <div class="form-group">
         <label>ISBN *</label>
         <input type="text" [(ngModel)]="form.isbn" placeholder="978-..."
-               [class.input-error]="errors['isbn']" />
+               [class.input-error]="errors['isbn']" readonly/>
         @if (errors['isbn']) {
           <span class="field-error">{{ errors['isbn'] }}</span>
         } @else {

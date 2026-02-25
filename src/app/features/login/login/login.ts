@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { AuthService } from '../../../core/services/auth';
 
 @Component({
@@ -14,6 +15,7 @@ export class LoginComponent {
   private fb     = inject(FormBuilder);
   private auth   = inject(AuthService);
   private router = inject(Router);
+  private title  = inject(Title);
 
   loginForm = this.fb.group({
     username: ['', Validators.required],
@@ -23,6 +25,10 @@ export class LoginComponent {
   showPassword = false;
   error   = signal(false);
   loading = signal(false);
+
+  ngOnInit() {
+    this.title.setTitle('Librería de Javier - Login');
+  }
 
   login() {
     const { username, password } = this.loginForm.value;

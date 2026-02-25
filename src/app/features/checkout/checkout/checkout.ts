@@ -2,9 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { FCart } from '../../cart/facade/fcart';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, switchMap } from 'rxjs';
 import { FLibros } from '../../books/facade/fbooks';
+import { FOrders } from '../../orders/facade/forders';
+import { AuthService } from '../../../core/services/auth';
 
 type MetodoPago = 'tarjeta' | 'paypal' | 'reembolso';
 
@@ -18,7 +21,10 @@ type MetodoPago = 'tarjeta' | 'paypal' | 'reembolso';
 export class CheckoutComponent {
   private cartFacade   = inject(FCart);
   private librosFacade = inject(FLibros);
+  private ordersFacade = inject(FOrders);
+  private auth         = inject(AuthService);
   private router       = inject(Router);
+  private title        = inject(Title);
 
   items      = this.cartFacade.items;
   totalPrice = this.cartFacade.totalPrice;
@@ -43,6 +49,10 @@ export class CheckoutComponent {
     cvv:         '',
     emailPaypal: '',
   };
+
+  ngOnInit() {
+    this.title.setTitle('Librería de Javier - Checkout');
+  }
 
   validar(): boolean {
     this.errors = {};
@@ -85,25 +95,39 @@ export class CheckoutComponent {
     if (!this.validar()) return;
     this.loading.set(true);
 
-    const actualizaciones = this.items()
-      .map(item => this.librosFacade.descontarStock(item.libro.id, item.quantity) as Observable<any>);
+    const usuarioId = this.auth.currentUser()!.id;
+    const itemsCarrito = this.items();
 
-    setTimeout(() => {
-      forkJoin(actualizaciones).subscribe({
-        next: () => {
-          this.cartFacade.clearCart();
-          this.loading.set(false);
-          this.pedidoOk.set(true);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.errors['general'] = 'Error al procesar el pedido. Inténtalo de nuevo.';
-        }
-      });
-    }, 1500);
+    const pedido = {
+      usuarioId,
+      total: this.totalPrice(),
+      items: itemsCarrito.map(item => ({
+        libroId:        item.libro.id,
+        cantidad:       item.quantity,
+        precioUnitario: item.libro.precio
+      }))
+    };
+
+    this.ordersFacade.createOrder(pedido).pipe(
+      switchMap(() => {
+        const actualizaciones = itemsCarrito
+          .map(item => this.librosFacade.descontarStock(item.libro.id, item.quantity) as Observable<any>);
+        return forkJoin(actualizaciones);
+      })
+    ).subscribe({
+      next: () => {
+        this.cartFacade.clearCart();
+        this.loading.set(false);
+        this.pedidoOk.set(true);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.errors['general'] = 'Error al procesar el pedido. Inténtalo de nuevo.';
+      }
+    });
   }
 
-    volverATienda() {
-      this.router.navigate(['/books']);
-    }
+  volverATienda() {
+    this.router.navigate(['/books']);
   }
+}

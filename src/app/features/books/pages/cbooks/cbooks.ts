@@ -2,6 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { CartComponent } from '../../../cart/component/cart-summary/cart-summary';
 import { FCart } from '../../../cart/facade/fcart';
 import { ILibro } from '../../models/ibooks';
@@ -22,16 +23,21 @@ export class CBooks {
   private librosFacade = inject(FLibros);
   private cartFacade   = inject(FCart);
   private router       = inject(Router);
+  private title        = inject(Title);
   auth                 = inject(AuthService);
 
   libros  = this.librosFacade.libros;
   loading = this.librosFacade.loading;
 
-  searchQuery = signal('');
-  searchField = signal<SearchField>('titulo');
-  sortOption  = signal<SortOption>('none');
+  searchQuery  = signal('');
+  searchField  = signal<SearchField>('titulo');
+  sortOption   = signal<SortOption>('none');
+  currentPage  = signal(1);
+  pageSize     = signal(18);
+  pageSizes    = [9, 18, 36, 72];
 
-  libroAEliminar = signal<ILibro | null>(null);
+  libroAEliminar  = signal<ILibro | null>(null);
+  libroSeleccionado = signal<ILibro | null>(null);
 
   filteredLibros = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -52,8 +58,38 @@ export class CBooks {
     return result;
   });
 
+  totalPages = computed(() =>
+    Math.ceil(this.filteredLibros().length / this.pageSize())
+  );
+
+  paginatedLibros = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredLibros().slice(start, start + this.pageSize());
+  });
+
+  pages = computed(() =>
+    Array.from({ length: this.totalPages() }, (_, i) => i + 1)
+  );
+
   ngOnInit() {
     this.librosFacade.loadLibros();
+    this.title.setTitle('Librería de Javier - Estantería');
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
+  onSearchChange() {
+    this.currentPage.set(1);
   }
 
   addToCart(libro: ILibro) {
@@ -83,6 +119,14 @@ export class CBooks {
 
   cancelarBorrar() {
     this.libroAEliminar.set(null);
+  }
+
+  verDetalle(libro: ILibro) {
+    this.libroSeleccionado.set(libro);
+  }
+
+  cerrarDetalle() {
+    this.libroSeleccionado.set(null);
   }
 
   onImageError(event: Event) {

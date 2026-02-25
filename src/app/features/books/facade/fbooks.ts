@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ILibro } from '../models/ibooks';
 import { SLibrosApiService } from '../../../core/services/sbooks';
 import { of, switchMap, tap } from 'rxjs';
+import { ILibro } from '../models/ibooks';
 
 @Injectable({
   providedIn: 'root',

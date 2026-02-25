@@ -5,6 +5,7 @@ import { tap } from 'rxjs';
 export type Role = 'user' | 'admin';
 
 export interface User {
+  id:       number;
   username: string;
   role:     Role;
   token:    string;
@@ -30,10 +31,21 @@ export class AuthService {
   isAdmin     = computed(() => this.currentUserSignal()?.role === 'admin');
   isUser      = computed(() => this.currentUserSignal()?.role === 'user');
 
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch {
+      return {};
+    }
+  }
+
   login(username: string, password: string) {
     return this.http.post<AuthResponse>(`${this.API}/login`, { username, password }).pipe(
       tap(res => {
-        const user: User = { username: res.username, role: res.role as Role, token: res.token };
+        const decoded = this.decodeToken(res.token);
+        const id = Number(decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']);
+        const user: User = { id, username: res.username, role: res.role as Role, token: res.token };
         this.currentUserSignal.set(user);
         sessionStorage.setItem('user', JSON.stringify(user));
       })

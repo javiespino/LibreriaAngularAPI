@@ -1,0 +1,76 @@
+<div class="orders-container">
+  <div class="orders-header">
+    <h2>{{ isAdmin() ? 'Gestión de Pedidos' : 'Mis Pedidos' }}</h2>
+    <button class="btn-reload" (click)="reload()" [disabled]="loading()">
+      {{ loading() ? 'Cargando...' : '↻ Actualizar' }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="orders-msg">
+      <div class="spinner"></div>
+      <p>Cargando pedidos...</p>
+    </div>
+  } @else if (orders().length === 0) {
+    <div class="orders-empty">
+      <p>📦 No hay pedidos disponibles.</p>
+    </div>
+  } @else {
+    <div class="orders-list">
+      @for (order of orders(); track order.id) {
+        <div class="order-card">
+          <div class="order-card-header">
+            <div class="header-info">
+              <span class="order-id">Pedido #{{ order.id }}</span>
+              
+              @if (isAdmin()) {
+                <div class="client-badge">
+                  <span class="client-name">👤 {{ order.usuarioNombre || 'Sin nombre' }}</span>
+                  <span class="client-email">{{ order.usuarioEmail }}</span>
+                </div>
+              }
+              
+              <span class="order-date">{{ order.fechaPedido | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            
+            @if (isAdmin()) {
+              <div class="admin-actions">
+                <select #sel>
+                  <option value="Pendiente" [selected]="order.estado === 'Pendiente'">Pendiente</option>
+                  <option value="Completado" [selected]="order.estado === 'Completado'">Completado</option>
+                  <option value="Cancelado" [selected]="order.estado === 'Cancelado'">Cancelado</option>
+                </select>
+                <button class="btn-save" (click)="cambiarEstado(order.id, sel.value)">Guardar</button>
+              </div>
+            } @else {
+              <span class="status" [class]="'status-' + order.estado.toLowerCase()">
+                {{ order.estado }}
+              </span>
+            }
+          </div>
+
+          <div class="order-card-body">
+            <ul class="items-list">
+              @for (item of order.items; track item.id) {
+                <li>
+                  <div class="item-info">
+                    <span class="item-qty">{{ item.cantidad }}x</span>
+                    <div class="item-text">
+                       <span class="item-name">{{ item.libroTitulo }}</span>
+                    </div>
+                  </div>
+                  <span class="item-price">{{ item.precioUnitario | currency:'EUR' }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="order-card-footer">
+            <span class="total-label">Total del pedido:</span>
+            <span class="total-amount">{{ order.total | currency:'EUR' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
