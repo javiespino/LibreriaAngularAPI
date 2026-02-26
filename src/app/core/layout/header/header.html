@@ -1,6 +1,8 @@
 <header class="header">
   <h1 class="header-brand">
-    <a routerLink="/" class="brand-link">Librería de Javier</a>
+    <a routerLink="/" class="brand-link">
+      <img src="/ensignalogoneg.png" alt="Librería Ensigna" class="brand-logo">
+    </a>
   </h1>
 
   @if (!isLoginPage()) {
@@ -25,11 +27,11 @@
       @if (auth.isLoggedIn()) {
 
         <button class="orders-btn" (click)="goToOrders()">
-          📦 Mis pedidos
+          Mis pedidos
         </button>
 
         <button class="cart-btn" (click)="toggleCart()">
-          🛒 Carrito ({{ totalItems() }})
+          Carrito ({{ totalItems() }})
         </button>
 
         <button class="logout-btn" (click)="logout()">

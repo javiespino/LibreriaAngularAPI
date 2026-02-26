@@ -1,44 +1,50 @@
 <div class="login-container">
-  <div>
-    <h2>Registro</h2>
+  <div class="login-card">
+    <h2>Crear cuenta</h2>
     <form [formGroup]="registerForm" (ngSubmit)="register()">
 
-      <input placeholder="Usuario" formControlName="username">
-      @if (registerForm.get('username')?.touched && registerForm.get('username')?.hasError('required')) {
-        <p>El usuario es obligatorio.</p>
-      }
-
-      <input type="email" placeholder="Email" formControlName="email">
-      @if (registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')) {
-        <p>El email es obligatorio.</p>
-      }
-      @if (registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')) {
-        <p>El email no es válido.</p>
-      }
-
-      <div class="password-wrapper">
-        <input [type]="showPassword ? 'text' : 'password'" placeholder="Contraseña (mín. 6 caracteres)" formControlName="password">
-        <span class="toggle-eye" (click)="showPassword = !showPassword">
-          {{ showPassword ? '🙈' : '👁️' }}
-        </span>
+      <div class="form-field">
+        <input placeholder="Usuario" formControlName="username">
+        @if (registerForm.get('username')?.touched && registerForm.get('username')?.hasError('required')) {
+          <p class="error-msg">El usuario es obligatorio.</p>
+        }
       </div>
-      @if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')) {
-        <p>La contraseña es obligatoria.</p>
-      }
-      @if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')) {
-        <p>La contraseña debe tener al menos 6 caracteres.</p>
-      }
 
-      <button type="submit" [disabled]="loading()">
+      <div class="form-field">
+        <input type="email" placeholder="Email" formControlName="email">
+        @if (registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')) {
+          <p class="error-msg">El email es obligatorio.</p>
+        }
+        @if (registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')) {
+          <p class="error-msg">El email no es válido.</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <div class="password-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'" placeholder="Contraseña (mín. 6 caracteres)" formControlName="password">
+          <span class="toggle-eye" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </span>
+        </div>
+        @if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')) {
+          <p class="error-msg">La contraseña es obligatoria.</p>
+        }
+        @if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')) {
+          <p class="error-msg">Mínimo 6 caracteres.</p>
+        }
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
         {{ loading() ? 'Registrando...' : 'Crear cuenta' }}
       </button>
 
       @if (error()) {
-        <p>{{ error() }}</p>
+        <p class="error-msg-box">{{ error() }}</p>
       }
 
       @if (success()) {
-        <p style="color: #16a34a">¡Cuenta creada! Redirigiendo al login...</p>
+        <p class="success-msg">¡Cuenta creada! Redirigiendo...</p>
       }
 
     </form>
@@ -55,7 +61,7 @@
       <span>o</span>
     </div>
 
-    <a routerLink="/login">
+    <a routerLink="/login" class="login-link">
       <button class="guest-btn">¿Ya tienes cuenta? Inicia sesión</button>
     </a>
   </div>

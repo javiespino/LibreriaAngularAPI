@@ -9,11 +9,11 @@
   @if (loading()) {
     <div class="orders-msg">
       <div class="spinner"></div>
-      <p>Cargando pedidos...</p>
+      <p>Consultando archivos...</p>
     </div>
   } @else if (orders().length === 0) {
     <div class="orders-empty">
-      <p>📦 No hay pedidos disponibles.</p>
+      <p>📦 No hay pedidos registrados en su historial.</p>
     </div>
   } @else {
     <div class="orders-list">

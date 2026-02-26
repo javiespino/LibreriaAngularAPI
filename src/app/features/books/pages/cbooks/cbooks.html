@@ -1,5 +1,5 @@
 <div class="page-header">
-  <h1>Estantería de Javier</h1>
+  <h1>Librería Ensigna</h1>
   <p class="page-subtitle">Encuentra tu próxima lectura</p>
 </div>
 
@@ -57,7 +57,6 @@
   Mostrando {{ paginatedLibros().length }} de {{ filteredLibros().length }} libros
 </p>
 
-<!-- PAGINACIÓN ARRIBA -->
 @if (totalPages() > 1) {
   <div class="pagination-top">
     <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">‹</button>
@@ -106,7 +105,6 @@
   }
 </section>
 
-<!-- PAGINACIÓN ABAJO -->
 @if (totalPages() > 1) {
   <div class="pagination-bottom">
     <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">‹</button>
